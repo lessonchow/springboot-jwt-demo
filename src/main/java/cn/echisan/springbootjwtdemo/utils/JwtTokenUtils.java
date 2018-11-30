@@ -35,10 +35,10 @@ public class JwtTokenUtils {
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .setClaims(map)
-                .setIssuer(ISS)
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
+                .setIssuer(ISS) //签发者
+                .setSubject(username) // jwt所面向的用户
+                .setIssuedAt(new Date()) // iat: jwt的签发时间
+                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000)) // exp: jwt的过期时间，这个过期时间必须要大于签发时间
                 .compact();
     }
 

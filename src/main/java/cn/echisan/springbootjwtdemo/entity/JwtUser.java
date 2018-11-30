@@ -63,6 +63,7 @@ public class JwtUser implements UserDetails {
         return true;
     }
 
+    // 我自己重写打印下信息看的
     @Override
     public String toString() {
         return "JwtUser{" +

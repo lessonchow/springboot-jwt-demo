@@ -1,5 +1,6 @@
 package cn.echisan.springbootjwtdemo.config;
 
+import cn.echisan.springbootjwtdemo.JWTAccessDeniedHandler;
 import cn.echisan.springbootjwtdemo.JWTAuthenticationEntryPoint;
 import cn.echisan.springbootjwtdemo.filter.JWTAuthenticationFilter;
 import cn.echisan.springbootjwtdemo.filter.JWTAuthorizationFilter;
@@ -27,9 +28,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
+    // 因为UserDetailsService的实现类实在太多啦，这里设置一下我们要注入的实现类
     @Qualifier("userDetailsServiceImpl")
     private UserDetailsService userDetailsService;
 
+    // 加密密码的，安全第一嘛~
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
@@ -46,7 +49,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // 测试用资源，需要验证了的用户才能访问
                 .antMatchers("/tasks/**").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/tasks/**").hasRole("ADMIN")
+                // 需要角色为ROLE_ADMIN才能删除该资源(hasRole("ADMIN")和hasAuthority("ROLE_ADMIN")的不同)
+//                .antMatchers(HttpMethod.DELETE, "/tasks/**").hasRole("ADMIN")
+//                .antMatchers(HttpMethod.DELETE, "/tasks/**").hasAuthority("ROLE_ADMIN") 
                 // 其他都放行了
                 .anyRequest().permitAll()
                 .and()
@@ -55,7 +60,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 不需要session
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint());
+                //没有登录信息（token）时的403统一处理
+                .exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint())
+                .and()
+                //有登录信息（token）但没有权限时的统一处理，JWTAccessDeniedHandler返回的是字符串或json，还有另外一个方法是设置
+                //有登录但无权限时的统一处理返回页面的URL字符串
+                .exceptionHandling().accessDeniedHandler(new JWTAccessDeniedHandler())
+                ;
     }
 
     @Bean

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
+ * 注册的控制器
  * Created by echisan on 2018/6/23
  */
 @RestController
@@ -28,6 +29,7 @@ public class AuthController {
     public String registerUser(@RequestBody Map<String,String> registerUser){
         User user = new User();
         user.setUsername(registerUser.get("username"));
+        // 记得注册的时候把密码加密一下
         user.setPassword(bCryptPasswordEncoder.encode(registerUser.get("password")));
         user.setRole("ROLE_USER");
         User save = userRepository.save(user);
